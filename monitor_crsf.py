@@ -71,9 +71,15 @@ def extract_frames(buffer: bytearray):
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", help="Serial port; default auto-detect 067B:2303")
+    parser.add_argument("--list-ports", action="store_true", help="List available serial ports and exit")
     parser.add_argument("--baud", type=int, default=230400,
                         help="Must match Nano RX UART Baud (default: 230400 for this experiment)")
     args = parser.parse_args()
+    if args.list_ports:
+        for p in list_ports.comports():
+            vidpid = f"{p.vid:04X}:{p.pid:04X}" if p.vid is not None and p.pid is not None else "unknown"
+            print(f"{p.device} | {p.description} | VID:PID={vidpid}")
+        return
     port = args.port or find_pl2303()
     buffer = bytearray()
     last_channels = time.monotonic()
